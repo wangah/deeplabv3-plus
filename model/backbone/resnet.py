@@ -72,6 +72,7 @@ class BottleneckBlock(nn.Module):
 
     Also does not use biases for the conv layers.
     """
+
     def __init__(self, in_channels, base_out_channels, stride=1, dilation=1):
         super().__init__()
         assert stride in (1, 2)
@@ -98,7 +99,7 @@ class BottleneckBlock(nn.Module):
                 kernel_size=3,
                 stride=stride,
                 dilation=dilation,
-                padding=1,
+                padding=dilation,
                 bias=False,
             ),
             nn.BatchNorm2d(base_out_channels),
@@ -156,6 +157,7 @@ class ResNet50(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
         )
+
         self.conv2 = self.create_stack(
             num_blocks=blocks_per_stack[0],
             in_channels=64,
@@ -229,7 +231,7 @@ class ResNet50(nn.Module):
                 in_channels=in_channels,
                 base_out_channels=base_out_channels,
                 stride=stride,
-                dilation=self.multi_grid_rates[0] * dilation
+                dilation=self.multi_grid_rates[0] * dilation,
             )
         )
 
@@ -239,15 +241,12 @@ class ResNet50(nn.Module):
                     in_channels=block_out_channels,
                     base_out_channels=base_out_channels,
                     stride=1,
-                    dilation=self.multi_grid_rates[i] * dilation
+                    dilation=self.multi_grid_rates[i] * dilation,
                 )
             )
         return nn.Sequential(*stack)
 
     def forward(self, x):
-        x = self.conv1_pool1(x)
-        out_stride_4 = self.conv2(x)
-        x = self.conv3(out_stride_4)
-        x = self.conv4(x)
-        out_stride_16 = self.conv5(x)
-        return out_stride_4, out_stride_16
+        output_stride_4 = self.conv2(self.conv1_pool1(x))
+        output_stride_16 = self.conv5(self.conv4(self.conv3(output_stride_4)))
+        return output_stride_4, output_stride_16
