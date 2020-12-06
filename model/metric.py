@@ -1,4 +1,36 @@
 import torch
+import numpy as np
+
+
+def iou(output, target, num_classes=20, ignore_idx=19):
+    """
+    Credit:
+    https://stackoverflow.com/questions/48260415
+    """
+    with torch.no_grad():
+        ious = []
+        # pred = torch.argmax(output, dim=1)  # TODO check this
+        pred = output.view(-1)
+        target = target.view(-1)
+        print(pred.shape)
+        print(target.shape)
+
+        for k in range(num_classes):
+            if k == ignore_idx:
+                break
+            pred_inds = pred == k
+            target_inds = target == k
+            intersection = (pred_inds[target_inds]).long().sum().data.cpu()
+            union = (
+                pred_inds.long().sum().data.cpu()
+                + target_inds.long().sum().data.cpu()
+                - intersection
+            )
+            if union == 0:
+                ious.append(float("nan"))
+            else:
+                ious.append(float(intersection) / float(max(union, 1)))
+    return np.array(ious), np.mean(ious)
 
 
 # def accuracy(output, target):

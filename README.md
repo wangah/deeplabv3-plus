@@ -7,6 +7,15 @@ Folder structure and base classes were generated from
 [pytorch-template](https://github.com/victoresque/pytorch-template) by [Victor
 Huang](https://github.com/victoresque).
 
+## Todo
+
+- [ ] Record metrics like pixel accuracy, mIoU, iIoU
+- [ ] Visualize model output
+- [ ] Use data augmentation in training
+- [ ] Investigate other loss functions
+- [ ] Implement Hierarchical Multi-Scale Attention
+- [ ] Create Custom Trainer
+- [ ] Create Custom Logger
 
 ## Papers
 
@@ -15,14 +24,12 @@ Huang](https://github.com/victoresque).
 - [DeepLabv3+](https://arxiv.org/pdf/1802.02611.pdf)
 - [Hierarchical Multi-Scale Attention for Semantic Segmentation](https://arxiv.org/pdf/2005.10821.pdf)
 
-
 ## Resources
 
 - [Cityscapes Dataset Paper](https://arxiv.org/pdf/1604.01685.pdf)
 - [Cityscapes scripts](https://github.com/mcordts/cityscapesScripts)
 - [TorchVision tutorial](https://colab.research.google.com/github/pytorch/vision/blob/temp-tutorial/tutorials/torchvision_finetuning_instance_segmentation.ipynb)
 - [Learn OpenCV tutorial](https://www.learnopencv.com/pytorch-for-beginners-semantic-segmentation-using-torchvision/)
-
 
 ## Instructions
 

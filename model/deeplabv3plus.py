@@ -7,7 +7,7 @@ from model.aspp import ASPP
 
 
 class DeepLabv3Plus(nn.Module):
-    def __init__(self, num_classes=19):
+    def __init__(self, num_classes=20):
         """
         DeepLabv3+ model as described in https://arxiv.org/pdf/1802.02611.pdf.
         """

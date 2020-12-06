@@ -52,7 +52,7 @@ class CityscapesDataset(Dataset):
 
         ks = k[sidx]
         vs = v[sidx]
-        return vs[torch.searchsorted(ks, mask)].long()
+        return vs[torch.searchsorted(ks, mask)].to(torch.int64)
 
     def __len__(self):
         return len(self.img_paths)
