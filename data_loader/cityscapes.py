@@ -23,12 +23,14 @@ def get_img_mask_paths(split, img_root=IMG_DIR, mask_root=MASK_DIR):
 
 
 class CityscapesDataset(Dataset):
-    def __init__(self, split, transform=None, mask_transform=None):
-        self.img_paths, self.mask_paths = get_img_mask_paths(split)
+    def __init__(self, split, img_root, mask_root, transform=None):
+        self.split = split
+        self.img_root = img_root
+        self.mask_root = mask_root
+        self.img_paths, self.mask_paths = get_img_mask_paths(split, img_root, mask_root)
         assert len(self.img_paths) == len(self.mask_paths) and len(self.img_paths) > 0
 
         self.transform = transform
-        self.mask_transform = mask_transform
 
         self.ignoreId = 19
         self.id_to_trainId = {
@@ -50,7 +52,7 @@ class CityscapesDataset(Dataset):
 
         ks = k[sidx]
         vs = v[sidx]
-        return vs[torch.searchsorted(ks, mask)].double()
+        return vs[torch.searchsorted(ks, mask)].long()
 
     def __len__(self):
         return len(self.img_paths)
@@ -62,9 +64,7 @@ class CityscapesDataset(Dataset):
         mask = Image.open(self.mask_paths[idx])
 
         if self.transform:
-            image = self.transform(image)
-        if self.mask_transform:
-            mask = self.mask_transform(mask)
+            image, mask = self.transform(image, mask)
 
         mask = self.convert_to_trainId(mask)
         return {"image": image, "mask": mask}

@@ -14,6 +14,18 @@ from torchvision import transforms as T
 from torchvision.transforms import functional as F
 
 
+# CUSTOM TRANSFORMS
+class Resize(object):
+    def __init__(self, size):
+        self.size = size
+    
+    def __call__(self, image, target):
+        image = F.resize(image, self.size)
+        target = F.resize(target, self.size, interpolation=Image.NEAREST)
+        return image, target
+
+
+# COPIED TRANSFORMS FROM PYTORCH
 def pad_if_smaller(img, size, fill=0):
     min_size = min(img.size)
     if min_size < size:

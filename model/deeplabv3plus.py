@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from backbone import ResNet50
-from aspp import ASPP
+from model.backbone.resnet import ResNet50
+from model.aspp import ASPP
 
 
 class DeepLabv3Plus(nn.Module):
