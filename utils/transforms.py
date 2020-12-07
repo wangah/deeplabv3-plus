@@ -25,6 +25,57 @@ class Resize(object):
         return image, target
 
 
+class RandomCrop(object):
+    """
+    Set fill as an attribute and set default to 19.
+    """
+    def __init__(self, size, fill=19):
+        self.size = size
+        self.fill = fill
+
+    def __call__(self, image, target):
+        image = pad_if_smaller(image, self.size)
+        target = pad_if_smaller(target, self.size, fill=self.fill)
+        crop_params = T.RandomCrop.get_params(image, (self.size, self.size))
+        image = F.crop(image, *crop_params)
+        target = F.crop(target, *crop_params)
+        return image, target
+
+
+class RandomScaleCrop(object):
+    """
+    Resizes the image and then applies a random crop.
+    """
+    def __init__(
+        self,
+        scale_min=0.75,
+        scale_max=2.0,
+        crop_size=512,
+        inference_size=(1024, 512),
+        fill=19
+    ):
+        self.scale_min = scale_min
+        self.scale_max = scale_max
+        self.crop_size = crop_size
+        self.inference_size = inference_size
+        self.fill = fill
+
+    def __call__(self, image, target):
+        scale = random.uniform(self.scale_min, self.scale_max)
+        width = int(self.inference_size[0] * scale)
+        height = int(self.inference_size[1] * scale)
+        size = (width, height)
+        image = F.resize(image, size)
+        target = F.resize(target, size, interpolation=Image.NEAREST)
+
+        image = pad_if_smaller(image, self.crop_size)
+        target = pad_if_smaller(target, self.crop_size, fill=self.fill)
+        crop_params = T.RandomCrop.get_params(image, (self.crop_size, self.crop_size))
+        image = F.crop(image, *crop_params)
+        target = F.crop(target, *crop_params)
+        return image, target
+
+
 # COPIED TRANSFORMS FROM PYTORCH
 def pad_if_smaller(img, size, fill=0):
     min_size = min(img.size)
@@ -68,19 +119,6 @@ class RandomHorizontalFlip(object):
         if random.random() < self.flip_prob:
             image = F.hflip(image)
             target = F.hflip(target)
-        return image, target
-
-
-class RandomCrop(object):
-    def __init__(self, size):
-        self.size = size
-
-    def __call__(self, image, target):
-        image = pad_if_smaller(image, self.size)
-        target = pad_if_smaller(target, self.size, fill=255)
-        crop_params = T.RandomCrop.get_params(image, (self.size, self.size))
-        image = F.crop(image, *crop_params)
-        target = F.crop(target, *crop_params)
         return image, target
 
 
