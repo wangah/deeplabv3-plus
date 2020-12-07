@@ -9,9 +9,10 @@ Huang](https://github.com/victoresque).
 
 ## Todo
 
-- [ ] Record metrics like pixel accuracy, mIoU, iIoU
-- [ ] Visualize model output
-- [ ] Use data augmentation in training
+- [X] Record metrics like pixel accuracy, mIoU using confusion matrix
+- [X] Visualize model output
+- [X] Use data augmentation in training
+- [ ] Track more metrics like Dice Score and iIoU
 - [ ] Investigate other loss functions
 - [ ] Implement Hierarchical Multi-Scale Attention
 - [ ] Create Custom Trainer
