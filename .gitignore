@@ -1,3 +1,10 @@
+# Model checkpoints
+*.pt
+
+# Tensorboard logs 
+experiments/runs/*
+
+# jupyterlab
 .virtual_documents/
 
 # Byte-compiled / optimized / DLL files
