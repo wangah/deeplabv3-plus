@@ -18,7 +18,7 @@ from torchvision.transforms import functional as F
 class Resize(object):
     def __init__(self, size):
         self.size = size
-    
+
     def __call__(self, image, target):
         image = F.resize(image, self.size)
         target = F.resize(target, self.size, interpolation=Image.NEAREST)
@@ -27,9 +27,10 @@ class Resize(object):
 
 class RandomCrop(object):
     """
-    Set fill as an attribute and set default to 19.
+    Set fill as an attribute and set default to zero.
+    Fill should be any label id that gets converted into the ignore_id.
     """
-    def __init__(self, size, fill=19):
+    def __init__(self, size, fill=0):
         self.size = size
         self.fill = fill
 
@@ -44,15 +45,16 @@ class RandomCrop(object):
 
 class RandomScaleCrop(object):
     """
-    Resizes the image and then applies a random crop.
+    Randomly rescales the image and then applies a random crop.
+    Fill should be any label id that gets converted into the ignore id.
     """
     def __init__(
         self,
         scale_min=0.75,
         scale_max=2.0,
         crop_size=512,
-        inference_size=(1024, 512),
-        fill=19
+        inference_size=(512, 1024),  # height, width
+        fill=0
     ):
         self.scale_min = scale_min
         self.scale_max = scale_max
@@ -62,14 +64,14 @@ class RandomScaleCrop(object):
 
     def __call__(self, image, target):
         scale = random.uniform(self.scale_min, self.scale_max)
-        width = int(self.inference_size[0] * scale)
-        height = int(self.inference_size[1] * scale)
-        size = (width, height)
+        height = int(self.inference_size[0] * scale)
+        width = int(self.inference_size[1] * scale)
+        size = (height, width)
         image = F.resize(image, size)
         target = F.resize(target, size, interpolation=Image.NEAREST)
 
-        image = pad_if_smaller(image, self.crop_size)
-        target = pad_if_smaller(target, self.crop_size, fill=self.fill)
+        image = pad_if_smaller(image, self.crop_size, fill=0)
+        target = pad_if_smaller(target, self.crop_size, fill=0)
         crop_params = T.RandomCrop.get_params(image, (self.crop_size, self.crop_size))
         image = F.crop(image, *crop_params)
         target = F.crop(target, *crop_params)

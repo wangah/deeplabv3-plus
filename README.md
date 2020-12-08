@@ -11,12 +11,13 @@ Huang](https://github.com/victoresque).
 
 - [X] Record metrics like pixel accuracy, mIoU using confusion matrix
 - [X] Visualize model output
-- [X] Use data augmentation in training
+- [ ] Investigate more types of data augmentation (Gaussian Blur, Color Augmentation)
+- [ ] Implement Polynomial Learning Rate Scheduling
+- [ ] Use coarsely labeled images in training as well
 - [ ] Track more metrics like Dice Score and iIoU
 - [ ] Investigate other loss functions
-- [ ] Implement Hierarchical Multi-Scale Attention
+- [ ] Hierarchical Multi-Scale Attention
 - [ ] Create Custom Trainer
-- [ ] Create Custom Logger
 
 ## Papers
 

@@ -1,14 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from PIL import Image
-
 from cityscapesscripts.helpers import labels
-
-import torch
-from torch.utils.data import Dataset, DataLoader
-import transforms
-
-
 
 
 def get_palette():
