@@ -107,6 +107,7 @@ class CityscapesDataLoader:
                 utils.transforms.ToTensor(),
             ]
         )
+        self.inference_transform = utils.transforms.Compose([utils.transforms.ToTensor()])
 
         self.train_set = CityscapesDataset(
             "train", img_root, mask_root, transform=self.train_transform
@@ -114,9 +115,15 @@ class CityscapesDataLoader:
         self.val_set = CityscapesDataset(
             "val", img_root, mask_root, transform=self.val_transform
         )
+        self.inference_set = CityscapesDataset(
+            "val", img_root, mask_root, transform=self.inference_transform
+        )
         self.train_loader = DataLoader(
             dataset=self.train_set, batch_size=batch_size, shuffle=True
         )
         self.val_loader = DataLoader(
             dataset=self.val_set, batch_size=batch_size, shuffle=False
+        )
+        self.inference_loader = DataLoader(
+            dataset=self.inference_set, batch_size=2, shuffle=True
         )
