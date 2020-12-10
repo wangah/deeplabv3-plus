@@ -21,10 +21,16 @@ class DeepLabv3Plus(nn.Module):
         # decoder
         reduce_channels = 48  # or 32
         self.conv1x1 = nn.Sequential(
-            nn.Conv2d(in_channels=256, out_channels=reduce_channels,
-                      kernel_size=1, stride=1, padding=0, bias=False),
+            nn.Conv2d(
+                in_channels=256,
+                out_channels=reduce_channels,
+                kernel_size=1,
+                stride=1,
+                padding=0,
+                bias=False,
+            ),
             nn.BatchNorm2d(reduce_channels),
-            nn.ReLU()
+            nn.ReLU(),
         )
 
         # refine features
@@ -36,7 +42,7 @@ class DeepLabv3Plus(nn.Module):
                 kernel_size=3,
                 stride=1,
                 padding=1,
-                bias=False
+                bias=False,
             ),
             nn.BatchNorm2d(refine_channels),
             nn.ReLU(),
@@ -46,7 +52,7 @@ class DeepLabv3Plus(nn.Module):
                 kernel_size=3,
                 stride=1,
                 padding=1,
-                bias=False
+                bias=False,
             ),
             nn.BatchNorm2d(refine_channels),
             nn.ReLU(),
@@ -56,8 +62,8 @@ class DeepLabv3Plus(nn.Module):
                 kernel_size=1,
                 stride=1,
                 padding=0,
-                bias=False
-            )
+                bias=False,
+            ),
         )
 
     def forward(self, x):

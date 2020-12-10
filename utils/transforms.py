@@ -3,7 +3,7 @@ Taken from https://github.com/pytorch/vision/blob/master/references/segmentation
 
 torchvision.transforms.ToTensor should not be used when transforming target
 image masks. This is PyTorch's reference implementation for image mask
-transforms.
+transforms, plus some of my own custom transforms.
 """
 import numpy as np
 from PIL import Image
@@ -30,6 +30,7 @@ class RandomCrop(object):
     Set fill as an attribute and set default to zero.
     Fill should be any label id that gets converted into the ignore_id.
     """
+
     def __init__(self, size, fill=0):
         self.size = size
         self.fill = fill
@@ -48,13 +49,14 @@ class RandomScaleCrop(object):
     Randomly rescales the image and then applies a random crop.
     Fill should be any label id that gets converted into the ignore id.
     """
+
     def __init__(
         self,
-        scale_min=0.75,
+        scale_min=0.5,
         scale_max=2.0,
         crop_size=512,
         inference_size=(512, 1024),  # height, width
-        fill=0
+        fill=0,
     ):
         self.scale_min = scale_min
         self.scale_max = scale_max
