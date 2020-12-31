@@ -78,12 +78,7 @@ class CityscapesDataset(Dataset):
 
 
 class CityscapesDataLoader:
-    def __init__(
-        self,
-        img_root,
-        mask_root,
-        batch_size=4,
-    ):
+    def __init__(self, img_root, mask_root, batch_size=4, num_workers=4):
         self.img_root = img_root
         self.mask_root = mask_root
         self.batch_size = batch_size
@@ -121,11 +116,20 @@ class CityscapesDataLoader:
             "val", img_root, mask_root, transform=self.inference_transform
         )
         self.train_loader = DataLoader(
-            dataset=self.train_set, batch_size=batch_size, shuffle=True
+            dataset=self.train_set,
+            batch_size=batch_size,
+            num_workers=num_workers,
+            shuffle=True,
         )
         self.val_loader = DataLoader(
-            dataset=self.val_set, batch_size=batch_size, shuffle=False
+            dataset=self.val_set,
+            batch_size=batch_size,
+            num_workers=num_workers,
+            shuffle=False,
         )
         self.inference_loader = DataLoader(
-            dataset=self.inference_set, batch_size=2, shuffle=True
+            dataset=self.inference_set,
+            batch_size=2,
+            num_workers=num_workers,
+            shuffle=True,
         )
