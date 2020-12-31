@@ -1,12 +1,21 @@
 {
     "name": "DeepLabv3-plus_ResNet50",
     "n_gpu": 1,
+    "arch": {
+        "type": "DeepLabv3-plus_ResNet50",
+        "args": {
+            "num_classes": 20
+        }
+    },
     "data_loader": {
-        "type": "MnistDataLoader",
+        "type": "CityscapesDataLoader",
         "args":{
-            "data_dir": "data/",
+            "data_dir": "./data/",
+            "img_dir": "./data/leftImg8bit/",
+            "mask_dir": "./data/gtFine/",
             "batch_size": 4,
-            "shuffle": true
+            "shuffle": true,
+            "num_workers": 4
         }
     },
     "optimizer": {
@@ -17,25 +26,26 @@
             "momentum": 0.9
         }
     },
+    "ignore_idx": 19,
     "loss": "CrossEntropyLoss",
     "metrics": ["mIoU"],
     "lr_scheduler": {
         "type": "poly",
         "args": {
-            "": 50,
-            "gamma": 0.1
+            "max_decay_steps": 90000,
+            "end_learning_rate": 0.001,
+            "power": 0.9
         }
     },
     "trainer": {
-        "epochs": 121,
         "iterations": 90000,
-        "save_dir": "experiments",
-        "save_period": 1,
+        "save_dir": "./experiments/",
+        "ckpt_dir": "./experiments/checkpoints/",
+        "tensorboard_dir": "./experiments/runs/",
+        "save_freq": 1,
         "verbosity": 2,
-        
         "monitor": "max mIoU",
         "early_stop": 50,
-
         "tensorboard": true
     }
 }

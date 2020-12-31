@@ -114,10 +114,10 @@ terminado==0.9.1
 testpath==0.4.4
 threadpoolctl==2.1.0
 toml==0.10.2
-torch==1.7.0
+torch==1.7.0+cu110
 torch-poly-lr-decay==0.0.1
 torch-summary==1.4.3
-torchvision==0.8.1
+torchvision==0.8.1+cu110
 tornado==6.1
 tqdm==4.51.0
 traitlets==5.0.5

@@ -14,26 +14,44 @@ Huang](https://github.com/victoresque).
 - [ResNet](https://arxiv.org/pdf/1512.03385.pdf)
 - [DeepLabv3](https://arxiv.org/pdf/1706.05587.pdf)
 - [DeepLabv3+](https://arxiv.org/pdf/1802.02611.pdf)
+- [Cityscapes Dataset Paper](https://arxiv.org/pdf/1604.01685.pdf)
 
 ## Resources
 
-- [Cityscapes Dataset Paper](https://arxiv.org/pdf/1604.01685.pdf)
 - [Cityscapes scripts](https://github.com/mcordts/cityscapesScripts)
 
-## Instructions
+## Usage
 
-1. Download the Cityscapes files gtFine_trainvaltest.zip and
-   leftImg8bit_trainvaltest.zip [here](https://www.cityscapes-dataset.com) and
-   unzip.
-2. Set an environment variable named `CITYSCAPES_DATASET` that points to the directory
-   containing the unzipped images `export CITYSCAPES_DATASET=./data` (Optional).
-3. Install the required packages `pip install -r requirements.txt`.
+### Download Dataset
+
+#### gtFine
+
+Download the Cityscapes files gtFine_trainvaltest.zip and leftImg8bit_trainvaltest.zip [here](https://www.cityscapes-dataset.com/downloads/) and unzip into `./data`.
+
+#### gtCoarse
+
+Download gtCoarse.zip [here](https://www.cityscapes-dataset.com/downloads/) and
+unzip into `./data`.
+
+### Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+### Inference
+
+```bash
+```
+
+### Training
+
+```bash
+```
 
 ## Todo
 
-- [ ] Investigate more types of data augmentation (Gaussian Blur, Color Augmentation)
 - [ ] Use coarsely labeled images in training as well
-- [ ] Track more metrics like Dice Score and iIoU
-- [ ] Investigate other loss functions
-- [ ] Hierarchical Multi-Scale Attention
-- [ ] Create Custom Trainer
+- [ ] Track more metrics (Dice Score and iIoU)
+- [ ] Investigate other loss functions (RMI)
+- [ ] Experiment with Pytorch Lightning
