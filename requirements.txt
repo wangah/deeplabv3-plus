@@ -115,7 +115,7 @@ testpath==0.4.4
 threadpoolctl==2.1.0
 toml==0.10.2
 torch==1.7.0
-torch-poly-lr-decay==0.0.1
+torch-poly-lr-decay @ git+https://github.com/cmpark0126/pytorch-polynomial-lr-decay.git@9251dd7190eccfb1cd08e1ebce52e03cff0cb58a
 torch-summary==1.4.3
 torchvision==0.8.1
 tornado==6.1
