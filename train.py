@@ -49,6 +49,7 @@ def main(config):
     ignore_index = config["ignore_index"]
     criterion = nn.CrossEntropyLoss(ignore_index=ignore_index)
 
+    accumulate_grad_batches = config["trainer"]["accumulate_grad_batches"]
     optimizer = torch.optim.SGD(
         model.parameters(),
         lr=config["optimizer"]["args"]["lr"],
@@ -66,6 +67,7 @@ def main(config):
         iterations=config["trainer"]["iterations"],
         model=model,
         criterion=criterion,
+        accumulate_grad_batches=accumulate_grad_batches,
         optimizer=optimizer,
         lr_scheduler=lr_scheduler,
         device=device,

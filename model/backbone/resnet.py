@@ -194,7 +194,7 @@ class ResNet50(nn.Module):
         )
 
     def create_stack(
-        self, num_blocks, in_channels, base_out_channels, stride, dilation
+        self, num_blocks, in_channels, base_out_channels, stride, dilation=1
     ):
         block_out_channels = 4 * base_out_channels
 
@@ -205,6 +205,7 @@ class ResNet50(nn.Module):
                 in_channels=in_channels,
                 base_out_channels=base_out_channels,
                 stride=stride,
+                dilation=dilation
             )
         )
 
@@ -215,6 +216,7 @@ class ResNet50(nn.Module):
                     in_channels=block_out_channels,
                     base_out_channels=base_out_channels,
                     stride=1,
+                    dilation=dilation
                 )
             )
         return nn.Sequential(*stack)

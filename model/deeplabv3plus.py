@@ -19,7 +19,7 @@ class DeepLabv3Plus(nn.Module):
         self.aspp = ASPP()
 
         # decoder
-        reduce_channels = 48  # or 32
+        reduce_channels = 48
         self.conv1x1 = nn.Sequential(
             nn.Conv2d(
                 in_channels=256,

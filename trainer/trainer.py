@@ -11,6 +11,7 @@ class Trainer:
         iterations,
         model,
         criterion,
+        accumulate_grad_batches,
         optimizer,
         lr_scheduler,
         device,
@@ -25,6 +26,7 @@ class Trainer:
         self.iterations = iterations
         self.model = model
         self.criterion = criterion
+        self.accumulate_grad_batches = accumulate_grad_batches
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.device = device
@@ -34,7 +36,6 @@ class Trainer:
         self.val_loader = val_loader
         self.save_freq = save_freq
         self.ckpt_path = ckpt_path
-        self.log_path = log_path
         self.tensorboard_dir = tensorboard_dir
         self.writer = SummaryWriter(tensorboard_dir)
 
@@ -61,15 +62,21 @@ class Trainer:
             masks = sample["mask"].to(self.device)
 
             self.optimizer.zero_grad()
-            pred = self.model(images)
-            loss = self.criterion(pred, masks)
-            loss.backward()
+
+            scaled_loss = 0
+            for _ in range(self.accumulate_grad_batches):
+                pred = self.model(images)
+                loss = self.criterion(pred, masks)
+                loss.backward()
+                scaled_loss += loss.item()
+
             self.optimizer.step()
             self.lr_scheduler.step()
 
-            total_loss += loss.item()
+            actual_loss = scaled_loss / self.accumulate_grad_batches
+            total_loss += actual_loss
             self.writer.add_scalar(
-                "train_iter_loss", loss.item(), i + n_batches * epoch
+                "train_iter_loss", actual_loss, i + n_batches * epoch
             )
 
         avg_loss = total_loss / n_batches
