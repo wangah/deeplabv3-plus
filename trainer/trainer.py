@@ -39,7 +39,10 @@ class Trainer:
         self.tensorboard_dir = tensorboard_dir
         self.writer = SummaryWriter(tensorboard_dir)
 
-        self.epochs = math.ceil(iterations / len(train_loader))
+        self.iters_per_epoch = math.floor(
+            len(self.train_loader) / self.accumulate_grad_batches
+        )
+        self.epochs = math.ceil(self.iterations / self.iters_per_epoch)
         self.start_epoch = 1
 
     def save_checkpoint(self, epoch):
@@ -56,30 +59,33 @@ class Trainer:
         self.model.train()
 
         total_loss = 0
-        n_batches = len(self.train_loader)
+        accumulated_loss = 0
+
+        self.optimizer.zero_grad()
         for i, sample in enumerate(tqdm(self.train_loader)):
             images = sample["image"].to(self.device)
             masks = sample["mask"].to(self.device)
 
-            self.optimizer.zero_grad()
+            pred = self.model(images)
+            loss = self.criterion(pred, masks)
+            loss = loss / self.accumulate_grad_batches
+            loss.backward()
+            accumulated_loss += loss.item()
 
-            scaled_loss = 0
-            for _ in range(self.accumulate_grad_batches):
-                pred = self.model(images)
-                loss = self.criterion(pred, masks)
-                loss.backward()
-                scaled_loss += loss.item()
+            if (i + 1) % self.accumulate_grad_batches == 0:
+                self.optimizer.step()
+                self.optimizer.zero_grad()
+                self.lr_scheduler.step()
+                self.writer.add_scalar(
+                    "train_iter_loss",
+                    accumulated_loss,
+                    ((i + 1) / self.accumulate_grad_batches)
+                    + (self.iters_per_epoch * (epoch - 1)),
+                )
+                total_loss += accumulated_loss
+                accumulated_loss = 0
 
-            self.optimizer.step()
-            self.lr_scheduler.step()
-
-            actual_loss = scaled_loss / self.accumulate_grad_batches
-            total_loss += actual_loss
-            self.writer.add_scalar(
-                "train_iter_loss", actual_loss, i + n_batches * epoch
-            )
-
-        avg_loss = total_loss / n_batches
+        avg_loss = total_loss / self.iters_per_epoch
         self.writer.add_scalar("train_epoch_avg_loss", avg_loss, epoch)
         return avg_loss
 
