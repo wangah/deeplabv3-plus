@@ -1,3 +1,4 @@
+import os
 import math
 from tqdm import tqdm
 import torch
@@ -8,42 +9,37 @@ from model.metric import SegmentationMetrics
 class Trainer:
     def __init__(
         self,
-        iterations,
+        config,
         model,
         criterion,
-        accumulate_grad_batches,
+        metrics,
         optimizer,
-        lr_scheduler,
         device,
-        num_classes,
-        ignore_idx,
         train_loader,
         val_loader,
-        save_freq,
-        ckpt_path,
-        tensorboard_dir,
+        lr_scheduler=None,
     ):
-        self.iterations = iterations
+        self.config = config
         self.model = model
         self.criterion = criterion
-        self.accumulate_grad_batches = accumulate_grad_batches
+        self.metrics = metrics
         self.optimizer = optimizer
-        self.lr_scheduler = lr_scheduler
         self.device = device
-        self.num_classes = num_classes
-        self.ignore_idx = ignore_idx
         self.train_loader = train_loader
         self.val_loader = val_loader
-        self.save_freq = save_freq
-        self.ckpt_path = ckpt_path
-        self.tensorboard_dir = tensorboard_dir
-        self.writer = SummaryWriter(tensorboard_dir)
+        self.lr_scheduler = lr_scheduler
 
+        self.iterations = config["trainer"]["iterations"]
+        self.accumulate_grad_batches = config["trainer"]["accumulate_grad_batches"]
         self.iters_per_epoch = math.floor(
             len(self.train_loader) / self.accumulate_grad_batches
         )
-        self.epochs = math.ceil(self.iterations / self.iters_per_epoch)
         self.start_epoch = 1
+        self.epochs = math.ceil(self.iterations / self.iters_per_epoch)
+
+        self.logger = config.get_logger("trainer", config["trainer"]["verbosity"])
+        self.ckpt_dir = config.save_dir
+        self.writer = SummaryWriter(config.tensorboard_dir)
 
     def save_checkpoint(self, epoch):
         torch.save(
@@ -52,7 +48,7 @@ class Trainer:
                 "model_state_dict": self.model.state_dict(),
                 "optimizer_state_dict": self.optimizer.state_dict(),
             },
-            self.ckpt_path,
+            os.path.join(self.ckpt_dir, f"epoch_{epoch}.pt"),
         )
 
     def _train_epoch(self, epoch):
@@ -75,7 +71,8 @@ class Trainer:
             if (i + 1) % self.accumulate_grad_batches == 0:
                 self.optimizer.step()
                 self.optimizer.zero_grad()
-                self.lr_scheduler.step()
+                if self.lr_scheduler is not None:
+                    self.lr_scheduler.step()
                 self.writer.add_scalar(
                     "train_iter_loss",
                     accumulated_loss,
@@ -94,9 +91,8 @@ class Trainer:
 
         total_loss = 0
         n_batches = len(self.val_loader)
-        metrics = SegmentationMetrics(
-            num_classes=self.num_classes, ignore_idx=self.ignore_idx
-        )
+        self.metrics.reset()
+
         with torch.no_grad():
             for _, sample in enumerate(tqdm(self.val_loader)):
                 images = sample["image"].to(self.device)
@@ -107,12 +103,12 @@ class Trainer:
                 total_loss += loss.item()
 
                 pred_cls = torch.argmax(pred, dim=1)
-                metrics.update(pred_cls, masks)
+                self.metrics.update(pred_cls, masks)
 
         self.model.train()
 
         avg_loss = total_loss / n_batches
-        ious, mIoU = metrics.iou()
+        ious, mIoU = self.metrics.iou()
         self.writer.add_scalar("val_epoch_avg_loss", avg_loss, epoch)
         self.writer.add_scalar("val_epoch_mIoU", mIoU, epoch)
         return avg_loss, ious, mIoU
@@ -122,8 +118,8 @@ class Trainer:
         best_epoch = 0
         for epoch in range(self.start_epoch, self.epochs + 1):
             train_loss = self._train_epoch(epoch)
-            val_loss, ious, mIoU = self._valid_epoch(epoch)
-            print(f"Epoch {epoch}: val_loss {val_loss:.4f} | mIoU {mIoU:.4f}")
+            val_loss, _, mIoU = self._valid_epoch(epoch)
+            print(f"Epoch {epoch}: train_loss {train_loss:.4f} | val_loss {val_loss:.4f} | mIoU {mIoU:.4f} | best epoch {best_epoch}")
 
             if mIoU > best_mIoU:
                 best_mIoU = mIoU

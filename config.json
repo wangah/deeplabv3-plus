@@ -1,21 +1,25 @@
 {
     "name": "DeepLabv3-plus_ResNet50",
     "n_gpu": 1,
+    "data_loader": {
+        "type": "CityscapesDataLoader",
+        "args":{
+            "data_dir": "/media/alexwang/Backup/data/cityscapes/",
+            "train_extra": true,
+            "batch_size": 4,
+            "num_workers": 4
+        }
+    },
     "arch": {
         "type": "DeepLabv3-plus_ResNet50",
         "args": {
             "num_classes": 20
         }
     },
-    "data_loader": {
-        "type": "CityscapesDataLoader",
-        "args":{
-            "data_dir": "./data/",
-            "img_dir": "./data/leftImg8bit/",
-            "mask_dir": "./data/gtFine/",
-            "batch_size": 4,
-            "shuffle": true,
-            "num_workers": 4
+    "loss": {
+        "type": "cross_entropy",
+        "args": {
+            "ignore_index": 19
         }
     },
     "optimizer": {
@@ -26,9 +30,6 @@
             "momentum": 0.9
         }
     },
-    "ignore_idx": 19,
-    "loss": "CrossEntropyLoss",
-    "metrics": ["mIoU"],
     "lr_scheduler": {
         "type": "poly",
         "args": {
@@ -39,14 +40,8 @@
     },
     "trainer": {
         "iterations": 90000,
-        "save_dir": "./experiments/",
-        "ckpt_dir": "./experiments/checkpoints/",
-        "tensorboard_dir": "./experiments/runs/",
         "accumulate_grad_batches": 4,
-        "save_freq": 1,
-        "verbosity": 2,
-        "monitor": "max mIoU",
-        "early_stop": 50,
-        "tensorboard": true
+        "save_dir": "./experiments/",
+        "verbosity": 2
     }
 }
