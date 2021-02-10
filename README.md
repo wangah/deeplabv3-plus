@@ -1,7 +1,10 @@
 # DeepLabv3+
 
-Final Project for DS4440. Reimplementation of [DeepLabv3+](https://arxiv.org/abs/1802.02611)
-with a modified ResNet-50 backbone.
+Final Project for DS4440 - Practical Neural Networks at Northeastern University
+(Fall 2020).
+
+Reimplementation of [DeepLabv3+](https://arxiv.org/abs/1802.02611) with a
+modified ResNet-50 backbone as specified in [DeepLabv3](https://arxiv.org/pdf/1706.05587.pdf).
 
 The main results can be viewed in `evaluate.ipynb`.
 
@@ -22,16 +25,34 @@ Huang](https://github.com/victoresque).
 
 ## Usage
 
-### Download Dataset
+### Dataset
 
-#### gtFine
+Download the following files from [Cityscapes](https://www.cityscapes-dataset.com/downloads/):
+    - gtFine_trainvaltest.zip
+    - leftImg8bit_trainvaltest.zip
+    - gtCoarse.zip
+    - leftImg8bit_trainextra.zip
 
-Download the Cityscapes files gtFine_trainvaltest.zip and leftImg8bit_trainvaltest.zip [here](https://www.cityscapes-dataset.com/downloads/) and unzip into `./data`.
+Extract the files into `./data/` (or wherever you specify as the `data_dir` in `config.json`).
+Make sure to use the fine annotations for the train and val sets and coarse
+annotations for the train_extra set:
 
-#### gtCoarse
-
-Download gtCoarse.zip [here](https://www.cityscapes-dataset.com/downloads/) and
-unzip into `./data`.
+```text
+data/
+│
+├── gtFine/
+│   ├── train/
+│   └── val/
+│
+├── gtCoarse/
+│   └── train_extra/
+│  
+└── leftImg8bit/
+    ├── train/
+    ├── train_extra/
+    ├── val/
+    └── test/
+```
 
 ### Installation
 
@@ -42,16 +63,20 @@ pip install -r requirements.txt
 ### Inference
 
 ```bash
+# image
+python test.py
+
+# video
+python test_video.py  # TODO
 ```
 
 ### Training
 
 ```bash
+python train.py
 ```
 
 ## Todo
 
-- [ ] Use coarsely labeled images in training as well
 - [ ] Track more metrics (Dice Score and iIoU)
 - [ ] Investigate other loss functions (RMI)
-- [ ] Experiment with Pytorch Lightning

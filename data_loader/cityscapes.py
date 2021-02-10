@@ -8,14 +8,35 @@ import utils.transforms
 
 
 class CityscapesDataset(Dataset):
-    def __init__(self, split, img_root, mask_root, transform=None):
-        assert split in ("train", "val")
+    def __init__(self, split, data_root, transform=None):
+        assert split in ("train_extra", "train", "val")
         self.split = split
-        self.img_root = img_root
-        self.mask_root = mask_root
+        self.data_root = data_root
         self.transform = transform
 
-        self.img_paths, self.mask_paths = self.get_img_mask_paths()
+        self.img_paths = []
+        self.mask_paths = []
+        if self.split == "train_extra":
+            self.img_paths.extend(
+                self.get_files("leftImg8bit/train_extra/*/*_leftImg8bit.png")
+            )
+            self.mask_paths.extend(
+                self.get_files("gtCoarse/train_extra/*/*_labelIds.png")
+            )
+        if self.split in ("train", "train_extra"):
+            self.img_paths.extend(
+                self.get_files("leftImg8bit/train/*/*_leftImg8bit.png")
+            )
+            self.mask_paths.extend(
+                self.get_files("gtFine/train/*/*_labelIds.png")
+            )
+        if self.split == "val":
+            self.img_paths.extend(
+                self.get_files("leftImg8bit/val/*/*_leftImg8bit.png")
+            )
+            self.mask_paths.extend(
+                self.get_files("gtFine/val/*/*_labelIds.png")
+            )
         assert len(self.img_paths) == len(self.mask_paths) and len(self.img_paths) > 0
 
         self.num_classes = 20
@@ -40,14 +61,8 @@ class CityscapesDataset(Dataset):
             trainId: name for name, trainId in self.name_to_train_Id.items()
         }
 
-    def get_img_mask_paths(self):
-        img_paths = sorted(
-            glob.glob(os.path.join(self.img_root, self.split, "*", "*_leftImg8bit.png"))
-        )
-        mask_paths = sorted(
-            glob.glob(os.path.join(self.mask_root, self.split, "*", "*_labelIds.png"))
-        )
-        return img_paths, mask_paths
+    def get_files(self, pattern):
+        return sorted(glob.glob(os.path.join(self.data_root, pattern)))
 
     def convert_to_trainId(self, mask):
         """
@@ -78,9 +93,8 @@ class CityscapesDataset(Dataset):
 
 
 class CityscapesDataLoader:
-    def __init__(self, img_root, mask_root, batch_size=4, num_workers=4):
-        self.img_root = img_root
-        self.mask_root = mask_root
+    def __init__(self, data_root, train_extra, batch_size=4, num_workers=4):
+        self.data_root = data_root
         self.batch_size = batch_size
         self.train_transform = utils.transforms.Compose(
             [
@@ -107,14 +121,15 @@ class CityscapesDataLoader:
         )
 
         self.train_set = CityscapesDataset(
-            "train", img_root, mask_root, transform=self.train_transform
+            "train_extra" if train_extra else "train", data_root, self.train_transform
         )
         self.val_set = CityscapesDataset(
-            "val", img_root, mask_root, transform=self.val_transform
+            "val", data_root, self.val_transform
         )
         self.inference_set = CityscapesDataset(
-            "val", img_root, mask_root, transform=self.inference_transform
+            "val", data_root, self.inference_transform
         )
+
         self.train_loader = DataLoader(
             dataset=self.train_set,
             batch_size=batch_size,
