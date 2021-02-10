@@ -27,7 +27,7 @@ class ASPP(nn.Module):
         self.atrous_conv2 = self.make_atrous_conv(dilation_per_atrous_conv[1])
         self.atrous_conv3 = self.make_atrous_conv(dilation_per_atrous_conv[2])
         self.pooling = nn.Sequential(
-            nn.AdaptiveAvgPool2d(1),  # nn.AvgPool2d(kernel_size=())
+            nn.AdaptiveAvgPool2d(1),
             nn.Conv2d(
                 in_channels,
                 out_channels,
@@ -37,9 +37,9 @@ class ASPP(nn.Module):
                 bias=False,
             ),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(),  # nn.UpsamplingBilinear2d(size=())  # depricated use interpolate()
+            nn.ReLU(),
+            # nn.UpsamplingBilinear2d() is depricated use F.interpolate()
         )
-        # end branches
 
         # combine branches
         self.concat_conv1x1 = nn.Sequential(

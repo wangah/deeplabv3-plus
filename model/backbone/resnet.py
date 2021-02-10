@@ -144,10 +144,9 @@ class ResNet50(nn.Module):
     def __init__(self):
         super().__init__()
 
-        # TODO consider using cascaded blocks 5, 6, 7 like in the DeepLabv3 paper
         self.multi_grid_rates = (1, 2, 4)
         blocks_per_stack = (3, 4, 6, 3)
-        stride_per_stack = (1, 2, 2, 1)
+        stride_per_stack = (2, 2, 1, 1)
         dilation_per_stack = (1, 1, 1, 2)
 
         # downsampled by 4
@@ -158,6 +157,7 @@ class ResNet50(nn.Module):
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
         )
 
+        # Block1: downsampled by 8
         self.conv2 = self.create_stack(
             num_blocks=blocks_per_stack[0],
             in_channels=64,
@@ -166,7 +166,7 @@ class ResNet50(nn.Module):
             dilation=dilation_per_stack[0],
         )
 
-        # downsampled by 8
+        # Block2: downsampled by 16
         self.conv3 = self.create_stack(
             num_blocks=blocks_per_stack[1],
             in_channels=256,
@@ -175,7 +175,7 @@ class ResNet50(nn.Module):
             dilation=dilation_per_stack[1],
         )
 
-        # downsampled by 16
+        # Block3: no stride
         self.conv4 = self.create_stack(
             num_blocks=blocks_per_stack[2],
             in_channels=512,
@@ -205,7 +205,7 @@ class ResNet50(nn.Module):
                 in_channels=in_channels,
                 base_out_channels=base_out_channels,
                 stride=stride,
-                dilation=dilation
+                dilation=dilation,
             )
         )
 
@@ -216,7 +216,7 @@ class ResNet50(nn.Module):
                     in_channels=block_out_channels,
                     base_out_channels=base_out_channels,
                     stride=1,
-                    dilation=dilation
+                    dilation=dilation,
                 )
             )
         return nn.Sequential(*stack)
