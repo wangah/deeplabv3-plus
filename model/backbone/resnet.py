@@ -146,7 +146,7 @@ class ResNet50(nn.Module):
 
         self.multi_grid_rates = (1, 2, 4)
         blocks_per_stack = (3, 4, 6, 3)
-        stride_per_stack = (2, 2, 1, 1)
+        stride_per_stack = (1, 2, 2, 1)
         dilation_per_stack = (1, 1, 1, 2)
 
         # downsampled by 4
@@ -157,7 +157,7 @@ class ResNet50(nn.Module):
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
         )
 
-        # Block1: downsampled by 8
+        # Block1: no stride
         self.conv2 = self.create_stack(
             num_blocks=blocks_per_stack[0],
             in_channels=64,
@@ -166,7 +166,7 @@ class ResNet50(nn.Module):
             dilation=dilation_per_stack[0],
         )
 
-        # Block2: downsampled by 16
+        # Block2: downsampled by 8
         self.conv3 = self.create_stack(
             num_blocks=blocks_per_stack[1],
             in_channels=256,
@@ -175,7 +175,7 @@ class ResNet50(nn.Module):
             dilation=dilation_per_stack[1],
         )
 
-        # Block3: no stride
+        # Block3: downsampled by 16
         self.conv4 = self.create_stack(
             num_blocks=blocks_per_stack[2],
             in_channels=512,
@@ -249,8 +249,6 @@ class ResNet50(nn.Module):
         return nn.Sequential(*stack)
 
     def forward(self, x):
-        output_stride_4 = self.conv1_pool1(x)
-        output_stride_16 = self.conv5(
-            self.conv4(self.conv3(self.conv2(output_stride_4)))
-        )
+        output_stride_4 = self.conv2(self.conv1_pool1(x))
+        output_stride_16 = self.conv5(self.conv4(self.conv3((output_stride_4))))
         return output_stride_4, output_stride_16
