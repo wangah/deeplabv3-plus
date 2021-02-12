@@ -24,7 +24,7 @@ def main(config):
     logger = config.get_logger("train")
 
     data_loader = CityscapesDataLoader(
-        config["data_loader"]["args"]["data_root"],
+        config["data_loader"]["args"]["data_dir"],
         config["data_loader"]["args"]["train_extra"],
         config["data_loader"]["args"]["batch_size"],
         config["data_loader"]["args"]["num_workers"],
@@ -82,6 +82,9 @@ if __name__ == "__main__":
     args = argparse.ArgumentParser(description="DeepLabv3Plus")
     args.add_argument(
         "-c", "--config", default="./config.json", type=str, help="config file path"
+    )
+    args.add_argument(
+        "-r", "--resume", default=None, type=str, help="path to latest checkpoint"
     )
     args.add_argument(
         "-d", "--device", default=None, type=str, help="indices of GPUs to enable"

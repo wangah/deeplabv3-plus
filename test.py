@@ -47,7 +47,7 @@ def main(config):
     metrics = SegmentationMetrics(num_classes, ignore_idx)
 
     with torch.no_grad():
-        for i, sample in enumerate(tqdm(inference_loader)):
+        for _, sample in enumerate(tqdm(inference_loader)):
             images = sample["image"].to(device)
             masks = sample["mask"].to(device)
 
@@ -64,7 +64,7 @@ def main(config):
 
 
 if __name__ == "__main__":
-    args = argparse.ArgumentParser(description="PyTorch Template")
+    args = argparse.ArgumentParser(description="DeepLabv3Plus")
     args.add_argument(
         "-c",
         "--config",

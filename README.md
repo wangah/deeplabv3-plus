@@ -63,17 +63,28 @@ pip install -r requirements.txt
 ### Inference
 
 ```bash
+# TODO
+
 # image
-python test.py
+python detect.py
 
 # video
-python test_video.py  # TODO
+python detect_video.py
 ```
 
 ### Training
 
 ```bash
 python train.py
+
+# track performance
+tensorboard --logdir=experiments/runs/{exper_name}/{run_id}
+```
+
+### Test
+
+```bash
+python test.py
 ```
 
 ## Todo

@@ -31,9 +31,7 @@ class Trainer:
 
         self.iterations = config["trainer"]["iterations"]
         self.accumulate_grad_batches = config["trainer"]["accumulate_grad_batches"]
-        self.iters_per_epoch = math.floor(
-            len(self.train_loader) / self.accumulate_grad_batches
-        )
+        self.iters_per_epoch = len(self.train_loader) // self.accumulate_grad_batches
         self.start_epoch = 1
         self.epochs = math.ceil(self.iterations / self.iters_per_epoch)
 
@@ -76,8 +74,8 @@ class Trainer:
                 self.writer.add_scalar(
                     "train_iter_loss",
                     accumulated_loss,
-                    ((i + 1) / self.accumulate_grad_batches)
-                    + (self.iters_per_epoch * (epoch - 1)),
+                    (self.iters_per_epoch * (epoch - 1))
+                    + ((i + 1) / self.accumulate_grad_batches),
                 )
                 total_loss += accumulated_loss
                 accumulated_loss = 0
@@ -119,7 +117,10 @@ class Trainer:
         for epoch in range(self.start_epoch, self.epochs + 1):
             train_loss = self._train_epoch(epoch)
             val_loss, _, mIoU = self._valid_epoch(epoch)
-            print(f"Epoch {epoch}: train_loss {train_loss:.4f} | val_loss {val_loss:.4f} | mIoU {mIoU:.4f} | best epoch {best_epoch}")
+            self.logger.info(
+                f"Epoch {epoch}: train_loss {train_loss:.4f} | " +
+                f"val_loss {val_loss:.4f} | mIoU {mIoU:.4f} | best epoch {best_epoch}"
+            )
 
             if mIoU > best_mIoU:
                 best_mIoU = mIoU

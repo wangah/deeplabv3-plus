@@ -23,20 +23,28 @@ class CityscapesDataset(Dataset):
             self.mask_paths.extend(
                 self.get_files("gtCoarse/train_extra/*/*_labelIds.png")
             )
+
+            # remove corrupted file
+            self.img_paths.remove(
+                os.path.join(
+                    data_root,
+                    "leftImg8bit/train_extra/troisdorf/troisdorf_000000_000073_leftImg8bit.png",
+                )
+            )
+            self.mask_paths.remove(
+                os.path.join(
+                    data_root,
+                    "gtCoarse/train_extra/troisdorf/troisdorf_000000_000073_gtCoarse_labelIds.png",
+                )
+            )
         if self.split in ("train", "train_extra"):
             self.img_paths.extend(
                 self.get_files("leftImg8bit/train/*/*_leftImg8bit.png")
             )
-            self.mask_paths.extend(
-                self.get_files("gtFine/train/*/*_labelIds.png")
-            )
+            self.mask_paths.extend(self.get_files("gtFine/train/*/*_labelIds.png"))
         if self.split == "val":
-            self.img_paths.extend(
-                self.get_files("leftImg8bit/val/*/*_leftImg8bit.png")
-            )
-            self.mask_paths.extend(
-                self.get_files("gtFine/val/*/*_labelIds.png")
-            )
+            self.img_paths.extend(self.get_files("leftImg8bit/val/*/*_leftImg8bit.png"))
+            self.mask_paths.extend(self.get_files("gtFine/val/*/*_labelIds.png"))
         assert len(self.img_paths) == len(self.mask_paths) and len(self.img_paths) > 0
 
         self.num_classes = 20
@@ -123,9 +131,7 @@ class CityscapesDataLoader:
         self.train_set = CityscapesDataset(
             "train_extra" if train_extra else "train", data_root, self.train_transform
         )
-        self.val_set = CityscapesDataset(
-            "val", data_root, self.val_transform
-        )
+        self.val_set = CityscapesDataset("val", data_root, self.val_transform)
         self.inference_set = CityscapesDataset(
             "val", data_root, self.inference_transform
         )

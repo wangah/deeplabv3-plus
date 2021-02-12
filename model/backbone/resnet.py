@@ -249,6 +249,8 @@ class ResNet50(nn.Module):
         return nn.Sequential(*stack)
 
     def forward(self, x):
-        output_stride_4 = self.conv2(self.conv1_pool1(x))
-        output_stride_16 = self.conv5(self.conv4(self.conv3(output_stride_4)))
+        output_stride_4 = self.conv1_pool1(x)
+        output_stride_16 = self.conv5(
+            self.conv4(self.conv3(self.conv2(output_stride_4)))
+        )
         return output_stride_4, output_stride_16
